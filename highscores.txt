@@ -1,0 +1,6 @@
+1	36			popi
+
+2	16			teddy
+3	16			teddy
+4	0			EMPTY
+5	0			EMPTY

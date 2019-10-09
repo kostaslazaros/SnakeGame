@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1570630236 source:/home/ted/Downloads/SnakeGame-master/main.c
+	<stdio.h>
+	<time.h>
+	<math.h>
+	<conio.h>
+	<stdlib.h>
+	<termios.h>
+	<unistd.h>
+	<fcntl.h>
+
