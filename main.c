@@ -134,7 +134,6 @@ int getGameSpeed(void)
 
 void pauseMenu(void)
 {
-	int i;
 
 	gotoxy(28,23);
 	printf("**Paused**");
@@ -187,7 +186,6 @@ int collisionSnake (int x, int y, int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLeng
 //Generates food & Makes sure the food doesn't appear on top of the snake <- This sometimes causes a lag issue!!! Not too much of a problem tho
 int generateFood(int foodXY[], int width, int height, int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 {
-	int i;
 
 	do
 	{
