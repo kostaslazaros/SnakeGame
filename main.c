@@ -8,7 +8,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
-
+#include <string.h>
+#include <ctype.h>
 #define SNAKE_ARRAY_SIZE 310
 
 #ifdef _WIN32
@@ -134,14 +135,11 @@ int getGameSpeed(void)
 
 void pauseMenu(void)
 {
-
 	gotoxy(28,23);
 	printf("**Paused**");
-
 	waitForAnyKey();
 	gotoxy(28,23);
 	printf("            ");
-
 	return;
 }
 
@@ -311,10 +309,10 @@ void refreshInfoBar(int score, int speed)
 	printf("Speed: %d", speed);
 
 	gotoxy(52,23);
-	printf("Coder: Konstantinos Lazaros");
+	printf("Coder  : Konstantinos Lazaros");
 
 	gotoxy(52,24);
-	printf("Version: 0.1");
+	printf("Version: 0.2");
 
 	return;
 }
@@ -417,7 +415,7 @@ void inputScore(int score) //This seriously needs to be cleaned up
 	printf("Your Score made it into the top 5!!!");
 	gotoxy(10,6);
 	printf("Please enter your name: ");
-	gets(name);
+	fgets(name, 50, stdin);
 
 	x = 0;
 	while(!feof(fp))
@@ -686,7 +684,7 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 
 void loadEnviroment(int consoleWidth, int consoleHeight)//This can be done in a better way... FIX ME!!!! Also i think it doesn't work properly in ubuntu <- Fixed
 {
-	int i;
+	//int i;
 	int x = 1, y = 1;
 	int rectangleHeight = consoleHeight - 4;
 	clrscr(); //clear the console
@@ -739,7 +737,7 @@ void loadSnake(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 Well it will work, but the results wont be the ones expected.. I need to fix this at some point.. */
 void prepairSnakeArray(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 {
-	int i, x;
+	int i;
 	int snakeX = snakeXY[0][0];
 	int snakeY = snakeXY[1][0];
 
