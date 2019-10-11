@@ -4,7 +4,7 @@
 *    By Konstantinos Lazaros          *
 *   DIB UTH Lamia October 2019        *
 ***************************************/
-
+//Everything all here too!!!
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
