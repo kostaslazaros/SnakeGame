@@ -1,9 +1,6 @@
-/**************************************
-*Snake game for terminal written in C *
-* Inspired by other similar projects  *
-*    By Konstantinos Lazaros          *
-*   DIB UTH Lamia October 2019        *
-***************************************/
+/**********************************************
+*    Snake game for terminal written in C     *
+***********************************************/
 //Everything all here too!!!
 #include <stdio.h>
 #include <time.h>
@@ -12,102 +9,78 @@
 #include <ctype.h>
 #define SNAKE_ARRAY_SIZE 310
 
-#ifdef _WIN32
-	//Windows Libraries
-	#include <conio.h>
+#include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 
-	//Windows Constants
-	//Controls
-	#define UP_ARROW 72
-	#define LEFT_ARROW 75
-	#define RIGHT_ARROW 77
-	#define DOWN_ARROW 80
-
-	#define ENTER_KEY 13
-
-	const char SNAKE_HEAD = (char)177;
-	const char SNAKE_BODY = (char)178;
-	const char WALL = (char)219;
-	const char FOOD = (char)254;
-	const char BLANK = ' ';
-#else
-	//Linux Libraries
-	#include <stdlib.h>
-	#include <termios.h>
-	#include <unistd.h>
-	#include <fcntl.h>
-
-	//Linux Constants
-
-	//Controls (arrow keys for Manjaro)
-	#define UP_ARROW (char)'A'
-	#define LEFT_ARROW (char)'D'
-	#define RIGHT_ARROW (char)'C'
-	#define DOWN_ARROW (char)'B'
-
-	#define ENTER_KEY 10
-
-	const char SNAKE_HEAD = '@';
-	const char SNAKE_BODY = '*';
-	const char WALL = '#';
-	const char FOOD = 'F';
-	const char BLANK = ' ';
-
-	//Linux Functions - These functions emulate some functions from the windows only conio header file
-	//Code: http://ubuntuforums.org/showthread.php?t=549023
-	void gotoxy(int x,int y)
-	{
-		printf("%c[%d;%df",0x1B,y,x);
-	}
-
-
-	int kbhit(void)
-	{
-	  struct termios oldt, newt;
-	  int ch;
-	  int oldf;
-
-	  tcgetattr(STDIN_FILENO, &oldt);
-	  newt = oldt;
-	  newt.c_lflag &= ~(ICANON | ECHO);
-	  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-	  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-	  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-	  ch = getchar();
-
-	  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-	  fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-	  if(ch != EOF)
-	  {
-		ungetc(ch, stdin);
-		return 1;
-	  }
-
-	  return 0;
-	}
-
-	char getch()
-	{
-		char c;
-		system("stty raw");
-		c= getchar();
-		system("stty sane");
-		return(c);
-	}
-
-	void clrscr()
-	{
-		system("clear");
-		return;
-	}
-	//End linux Functions
-#endif
-
-//This should be the same on both operating systems
+#define UP_ARROW 'w'
+#define LEFT_ARROW 'a'
+#define RIGHT_ARROW 'd'
+#define DOWN_ARROW 's'
+#define ENTER_KEY 10
 #define EXIT_BUTTON 27 //ESC
 #define PAUSE_BUTTON 112 //P
+
+
+const char SNAKE_HEAD = '@';
+const char SNAKE_BODY = '*';
+const char WALL = '|';
+const char CEIL = '-';
+const char FOOD = 'X';
+const char BLANK = ' ';
+
+
+void gotoxy(int x,int y)
+{
+    printf("%c[%d;%df",0x1B,y,x);
+}
+
+
+int kbhit(void)
+{
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+  newt.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+  ch = getchar();
+
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+  if(ch != EOF)
+  {
+    ungetc(ch, stdin);
+    return 1;
+  }
+
+  return 0;
+}
+
+char getch()
+{
+    char c;
+    system("stty raw");
+    c= getchar();
+    system("stty sane");
+    return(c);
+}
+
+void clrscr()
+{
+    system("clear");
+    return;
+}
+
+
+
 
 char waitForAnyKey(void)
 {
@@ -119,31 +92,20 @@ char waitForAnyKey(void)
 	return((char)pressed);
 }
 
-int getGameSpeed(void)
+int getGameSpeed()
 {
-	int speed;
+	int speed = 1;
 	clrscr();
 
-	do
-	{
-		gotoxy(10,5);
-		printf("Select The game speed between 1 and 9.");
-		speed = waitForAnyKey()-48;
-	} while(speed < 1 || speed > 9);
-	return(speed);
+    return(speed);
+    return 1;
 }
 
-void pauseMenu(void)
-{
-	gotoxy(28,23);
-	printf("**Paused**");
-	waitForAnyKey();
-	gotoxy(28,23);
-	printf("            ");
-	return;
-}
 
-//This function checks if a key has pressed, then checks if its any of the arrow keys/ p/esc key. It changes direction acording to the key pressed.
+
+// This function checks if a key has pressed,
+// then checks if its any of the wsad keys.
+// It changes direction acording to the key pressed.
 int checkKeysPressed(int direction)
 {
 	int pressed;
@@ -161,15 +123,14 @@ int checkKeysPressed(int direction)
 				direction = pressed;
 			else if (pressed == RIGHT_ARROW && direction != LEFT_ARROW)
 				direction = pressed;
-			else if (pressed == EXIT_BUTTON || pressed == PAUSE_BUTTON)
-				pauseMenu();
 		}
 	}
 	return(direction);
 }
 
-//Cycles around checking if the x y coordinates ='s the snake coordinates as one of this parts
-//One thing to note, a snake of length 4 cannot collide with itself, therefore there is no need to call this function when the snakes length is <= 4
+// Cycles around checking if the x y coordinates ='s the snake coordinates as one of this parts
+// One thing to note, a snake of length 4 cannot collide with itself,
+// therefore there is no need to call this function when the snakes length is <= 4
 int collisionSnake (int x, int y, int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength, int detect)
 {
 	int i;
@@ -181,7 +142,8 @@ int collisionSnake (int x, int y, int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLeng
 	return(0);
 }
 
-//Generates food & Makes sure the food doesn't appear on top of the snake <- This sometimes causes a lag issue!!! Not too much of a problem tho
+//Generates food & Makes sure the food doesn't appear on top of the snake <-
+// This sometimes causes a lag issue!!! Not too much of a problem tho
 int generateFood(int foodXY[], int width, int height, int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 {
 
@@ -309,241 +271,14 @@ void refreshInfoBar(int score, int speed)
 	printf("Speed: %d", speed);
 
 	gotoxy(52,23);
-	printf("Coder  : Konstantinos Lazaros");
+	printf("Developers  : Konstantinos Lazaros & Nefeli Stefanatou");
 
 	gotoxy(52,24);
-	printf("Version: 0.2");
+	printf("Version: 0.1");
 
 	return;
 }
 
-//**************HIGHSCORE STUFF**************//
-
-//-> The high scores system seriously needs to be clean. There are some bugs, entering a name etc
-
-void createHighScores(void)
-{
-	FILE *file;
-	int i;
-
-	file = fopen("highscores.txt","w+");
-
-	if(file == NULL)
-	{
-		printf("FAILED TO CREATE HIGHSCORES!!! EXITING!");
-		exit(0);
-	}
-
-	for(i = 0; i < 5; i++)
-	{
-		fprintf(file,"%d",i+1);
-		fprintf(file,"%s","\t0\t\t\tEMPTY\n");
-	}
-
-	fclose(file);
-	return;
-}
-
-int getLowestScore()
-{
-	FILE *fp;
-	char str[128];
-	int lowestScore = 0;
-	int i;
-	int intLength;
-
-	if((fp = fopen("highscores.txt", "r")) == NULL)
-	{
-		//Create the file, then try open it again.. if it fails this time exit.
-		createHighScores(); //This should create a high scores file (If there isn't one)
-		if((fp = fopen("highscores.txt", "r")) == NULL)
-			exit(1);
-	}
-
-	while(!feof(fp))
-	{
-		fgets(str, 126, fp);
-	}
-	fclose(fp);
-
-	i=0;
-
-	//Gets the Int length
-	while(str[2+i] != '\t')
-	{
-		i++;
-	}
-
-	intLength = i;
-
-	//Gets converts the string to int
-	for(i=0;i < intLength; i++)
-	{
-		lowestScore = lowestScore + ((int)str[2+i] - 48) * pow(10,intLength-i-1);
-	}
-
-	return(lowestScore);
-}
-
-void inputScore(int score) //This seriously needs to be cleaned up
-{
-	FILE *fp;
-	FILE *file;
-	char str[20];
-	int fScore;
-	int i, s, y;
-	int intLength;
-	int scores[5];
-	int x;
-	char highScoreName[20];
-	char highScoreNames[5][20];
-
-	char name[20];
-
-	int entered = 0;
-
-	clrscr(); //clear the console
-
-	if((fp = fopen("highscores.txt", "r")) == NULL)
-	{
-		//Create the file, then try open it again.. if it fails this time exit.
-		createHighScores(); //This should create a high scores file (If there isn't one)
-		if((fp = fopen("highscores.txt", "r")) == NULL)
-			exit(1);
-	}
-	gotoxy(10,5);
-	printf("Your Score made it into the top 5!!!");
-	gotoxy(10,6);
-	printf("Please enter your name: ");
-	fgets(name, 50, stdin);
-
-	x = 0;
-	while(!feof(fp))
-	{
-		fgets(str, 126, fp);  //Gets a line of text
-
-		i=0;
-
-		//Gets the Int length
-		while(str[2+i] != '\t')
-		{
-			i++;
-		}
-
-		s = i;
-		intLength = i;
-		i=0;
-		while(str[5+s] != '\n')
-		{
-			highScoreName[i] = str[5+s];
-			s++;
-			i++;
-		}
-
-		fScore = 0;
-		//Gets converts the string to int
-		for(i=0;i < intLength; i++)
-		{
-			fScore = fScore + ((int)str[2+i] - 48) * pow(10,intLength-i-1);
-		}
-
-		if(score >= fScore && entered != 1)
-		{
-			scores[x] = score;
-			strcpy(highScoreNames[x], name);
-
-			x++;
-			entered = 1;
-		}
-
-		strcpy(highScoreNames[x], highScoreName);
-		scores[x] = fScore;
-
-		//highScoreName = "";
-		for(y=0;y<20;y++)
-		{
-			highScoreName[y] = NULL;
-		}
-
-		x++;
-		if(x >= 5)
-			break;
-	}
-
-	fclose(fp);
-
-	file = fopen("highscores.txt","w+");
-
-	for(i=0;i<5;i++)
-	{
-		fprintf(file, "%d\t%d\t\t\t%s\n", i+1, scores[i], highScoreNames[i]);
-	}
-
-	fclose(file);
-
-	return;
-}
-
-void displayHighScores(void) //NEED TO CHECK THIS CODE!!!
-{
-	FILE *fp;
-	char str[128];
-	int y = 5;
-
-	clrscr(); //clear the console
-
-	if((fp = fopen("highscores.txt", "r")) == NULL) {
-		//Create the file, then try open it again.. if it fails this time exit.
-		createHighScores(); //This should create a highscores file (If there isn't one)
-		if((fp = fopen("highscores.txt", "r")) == NULL)
-			exit(1);
-	}
-
-	gotoxy(10,y++);
-	printf("High Scores");
-	gotoxy(10,y++);
-	printf("Rank\tScore\t\t\tName");
-	while(!feof(fp)) {
-		gotoxy(10,y++);
-		if(fgets(str, 126, fp))
-			printf("%s", str);
-	}
-
-	fclose(fp);	//Close the file
-	gotoxy(10,y++);
-
-	printf("Press any key to continue...");
-	waitForAnyKey();
-	return;
-}
-
-//**************END HIGHSCORE STUFF**************//
-
-void youWinScreen(void)
-{
-	int x = 6, y = 7;
-	gotoxy(x,y++);
-	printf("'##:::'##::'#######::'##::::'##::::'##:::::'##:'####:'##::: ##:'####:");
-	gotoxy(x,y++);
-	printf(". ##:'##::'##.... ##: ##:::: ##:::: ##:'##: ##:. ##:: ###:: ##: ####:");
-	gotoxy(x,y++);
-	printf(":. ####::: ##:::: ##: ##:::: ##:::: ##: ##: ##:: ##:: ####: ##: ####:");
-	gotoxy(x,y++);
-	printf("::. ##:::: ##:::: ##: ##:::: ##:::: ##: ##: ##:: ##:: ## ## ##:: ##::");
-	gotoxy(x,y++);
-	printf("::: ##:::: ##:::: ##: ##:::: ##:::: ##: ##: ##:: ##:: ##. ####::..:::");
-	gotoxy(x,y++);
-	printf("::: ##:::: ##:::: ##: ##:::: ##:::: ##: ##: ##:: ##:: ##:. ###:'####:");
-	gotoxy(x,y++);
-	printf("::: ##::::. #######::. #######:::::. ###. ###::'####: ##::. ##: ####:");
-	gotoxy(x,y++);
-	printf(":::..::::::.......::::.......:::::::...::...:::....::..::::..::....::");
-	gotoxy(x,y++);
-
-	waitForAnyKey();
-	clrscr(); //clear the console
-	return;
-}
 
 void gameOverScreen(void)
 {
@@ -624,10 +359,9 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 			{
 				generateFood( foodXY, consoleWidth, consoleHeight, snakeXY, snakeLength); //Generate More Food
 				snakeLength++;
-				score+=speed;
+				score+=10;
 
 				if( score >= 10*speed+tempScore)
-				//if( 2 >= 2)
 				{
 					speed++;
 					tempScore = score;
@@ -646,7 +380,7 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 				refreshInfoBar(score, speed);
 			}
 
-			endWait = clock() + waitMili; //TEMP FIX, NEED TO FIND A WAY TO RESET CLOCK().. Na, seems to work fine this way...
+			endWait = clock() + waitMili;
 		}
 
 		gameOver = collisionDetection(snakeXY, consoleWidth, consoleHeight, snakeLength);
@@ -666,25 +400,15 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 			printf("\7"); //Beep
 
 			gameOverScreen();
-
 			break;
-		case 2:
-			youWinScreen();
-			break;
-	}
-
-	if(score >= getLowestScore() && score != 0)
-	{
-		inputScore(score);
-		displayHighScores();
 	}
 
 	return;
 }
 
+
 void loadEnviroment(int consoleWidth, int consoleHeight)//This can be done in a better way... FIX ME!!!! Also i think it doesn't work properly in ubuntu <- Fixed
 {
-	//int i;
 	int x = 1, y = 1;
 	int rectangleHeight = consoleHeight - 4;
 	clrscr(); //clear the console
@@ -704,14 +428,16 @@ void loadEnviroment(int consoleWidth, int consoleHeight)//This can be done in a 
 	for (; x < consoleWidth+1; x++)
 	{
 		gotoxy(x, y); //Left Wall
-		printf("%c",WALL);
+		printf("%c",CEIL);
 
 		gotoxy(x, rectangleHeight); //Right Wall
-		printf("%c",WALL);
+		printf("%c",CEIL);
 	}
 
 	return;
 }
+
+
 
 void loadSnake(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 {
@@ -755,6 +481,7 @@ void prepairSnakeArray(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 //This function loads the environment, snake, etc
 void loadGame(void)
 {
+
 	int snakeXY[2][SNAKE_ARRAY_SIZE]; //Two Dimensional Array, the first array is for the X coordinates and the second array for the Y coordinates
 
 	int snakeLength = 4; //Starting Length
@@ -786,174 +513,10 @@ void loadGame(void)
 	return;
 }
 
-//**************MENU STUFF**************//
-
-int menuSelector(int x, int y, int yStart)
-{
-	char key;
-	int i = 0;
-	x = x - 2;
-	gotoxy(x,yStart);
-
-	printf(">");
-
-	gotoxy(1,1);
-
-
-	do
-	{
-		key = waitForAnyKey();
-		//printf("%c %d", key, (int)key);
-		if ( key == (char)UP_ARROW )
-		{
-			gotoxy(x,yStart+i);
-			printf(" ");
-
-			if (yStart >= yStart+i )
-				i = y - yStart - 2;
-			else
-				i--;
-			gotoxy(x,yStart+i);
-			printf(">");
-		}
-		else
-			if ( key == (char)DOWN_ARROW )
-			{
-				gotoxy(x,yStart+i);
-				printf(" ");
-
-				if (i+2 >= y - yStart )
-					i = 0;
-				else
-					i++;
-				gotoxy(x,yStart+i);
-				printf(">");
-			}
-
-	} while(key != (char)ENTER_KEY); //While doesn't equal enter... (13 ASCII code for enter) - note ubuntu is 10
-	return(i);
-}
-
-void welcomeArt(void)
-{
-	clrscr(); //clear the console
-	//Ascii art reference: http://www.chris.com/ascii/index.php?art=animals/reptiles/snakes
-	printf("\n");
-	printf("\t\t    _________         _________ 			\n");
-	printf("\t\t   /         \\       /         \\ 			\n");
-	printf("\t\t  /  /~~~~~\\  \\     /  /~~~~~\\  \\ 			\n");
-	printf("\t\t  |  |     |  |     |  |     |  | 			\n");
-	printf("\t\t  |  |     |  |     |  |     |  | 			\n");
-	printf("\t\t  |  |     |  |     |  |     |  |         /	\n");
-	printf("\t\t  |  |     |  |     |  |     |  |       //	\n");
-	printf("\t\t (o  o)    \\  \\_____/  /     \\  \\_____/ / 	\n");
-	printf("\t\t  \\__/      \\         /       \\        / 	\n");
-	printf("\t\t    |        ~~~~~~~~~         ~~~~~~~~ 		\n");
-	printf("\t\t    ^											\n");
-	printf("\t		Welcome To The Snake Game!			\n");
-	printf("\t			    Press Any Key To Continue...	\n");
-	printf("\n");
-
-	waitForAnyKey();
-	return;
-}
-
-void controls(void)
-{
-	int x = 10, y = 5;
-	clrscr(); //clear the console
-	gotoxy(x,y++);
-	printf("Controls\n");
-	gotoxy(x++,y++);
-	printf("Use the following arrow keys to direct the snake to the food: ");
-	gotoxy(x,y++);
-	printf("Right Arrow");
-	gotoxy(x,y++);
-	printf("Left Arrow");
-	gotoxy(x,y++);
-	printf("Top Arrow");
-	gotoxy(x,y++);
-	printf("Bottom Arrow");
-	gotoxy(x,y++);
-	gotoxy(x,y++);
-	printf("P & Esc pauses the game.");
-	gotoxy(x,y++);
-	gotoxy(x,y++);
-	printf("Press any key to continue...");
-	waitForAnyKey();
-	return;
-}
-
-void exitYN(void)
-{
-	char pressed;
-	gotoxy(9,8);
-	printf("Are you sure you want to exit(Y/N)\n");
-
-	do
-	{
-		pressed = waitForAnyKey();
-		pressed = tolower(pressed);
-	} while (!(pressed == 'y' || pressed == 'n'));
-
-	if (pressed == 'y')
-	{
-		clrscr(); //clear the console
-		exit(1);
-	}
-	return;
-}
-
-int mainMenu(void)
-{
-	int x = 10, y = 5;
-	int yStart = y;
-
-	int selected;
-
-	clrscr(); //clear the console
-	//Might be better with arrays of strings???
-	gotoxy(x,y++);
-	printf("New Game\n");
-	gotoxy(x,y++);
-	printf("High Scores\n");
-	gotoxy(x,y++);
-	printf("Controls\n");
-	gotoxy(x,y++);
-	printf("Exit\n");
-	gotoxy(x,y++);
-
-	selected = menuSelector(x, y, yStart);
-
-	return(selected);
-}
-
-//**************END MENU STUFF**************//
 
 int main() //Need to fix this up
 {
-
-	welcomeArt();
-
-	do
-	{
-		switch(mainMenu())
-		{
-			case 0:
-				loadGame();
-				break;
-			case 1:
-				displayHighScores();
-				break;
-			case 2:
-				controls();
-				break;
-			case 3:
-				exitYN();
-				break;
-		}
-	} while(1);	//
+    loadGame();
 
 	return(0);
 }
-

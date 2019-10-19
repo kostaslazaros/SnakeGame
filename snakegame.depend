@@ -9,3 +9,26 @@
 	<unistd.h>
 	<fcntl.h>
 
+1571055578 source:/home/kostas/prj/C-Programming/SnakeGame/main.c
+	<stdio.h>
+	<time.h>
+	<math.h>
+	<string.h>
+	<ctype.h>
+	<conio.h>
+	<stdlib.h>
+	<termios.h>
+	<unistd.h>
+	<fcntl.h>
+
+1571513055 source:/home/kostas/prj/C-Programming/SnakeGame (copy 1)/main.c
+	<stdio.h>
+	<time.h>
+	<math.h>
+	<string.h>
+	<ctype.h>
+	<stdlib.h>
+	<termios.h>
+	<unistd.h>
+	<fcntl.h>
+
